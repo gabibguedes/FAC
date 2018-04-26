@@ -1,21 +1,11 @@
-## li $v0,4;
- ## la $a0,numero;
- ## syscall
-##
-##  li $v0, 5;
-##  move $t0, $v0;
-##  syscall;
- 
-
 .data
-  comando: .asciiz "Escreva as variaveis para base, expoente e modulo"
-  numero: .asciiz "numero: "
-  base: .asciiz "base: "
-  expoente: .asciiz "expoente: "
-  modulo: .asciiz "modulo: "
-  primo: .asciiz "eh primo"
-  erro: .asciiz "Nao eh primo"
-
+	comando: .asciiz "Escreva as variaveis para base, expoente e modulo"
+  	numero: .asciiz "numero: "
+  	base: .asciiz "base: "
+  	expoente: .asciiz "expoente: "
+  	modulo: .asciiz "modulo: "
+  	primo: .asciiz "eh primo"
+  	erro: .asciiz "Nao eh primo"
 .text
 
 j MAIN
@@ -42,12 +32,15 @@ eh_primo:
 	IF:
 		addi $t5, $t5, 1 #Adiciona 1 na variavel que conta as divisôes
 		j volta_do_if #volta para o for
+		
 	IF2:
 		li $s0,  1 #Coloca 1 na variavel $s0 se for primo
 		
+		##Imprime "EH PRIMO"
 		li $v0, 4
 		la $a0, primo
-		syscall #Imprime a label
+		syscall
+		
 		j volta_do_if2 #volta
 		
 	FOR:	
@@ -62,8 +55,13 @@ eh_primo:
 	beq  $t5, 2, IF2 # Se tiver 2 divisores entra no if2
 	volta_do_if2:
 		jr $ra #volta pra main
+
 		
-	
+nao_primo:
+	li $v0, 4
+	la $a0, erro
+	syscall
+	j END			
 
 
 MAIN:
@@ -73,7 +71,7 @@ MAIN:
 	syscall #Imprime a label
 	
 	jal le_inteiro #salva o número
-	move $t1, $t0
+	move $t1, $t0 #$t1 = BASE
 	
 	#EXPOENTE
 	li $v0, 4
@@ -81,7 +79,7 @@ MAIN:
 	syscall
 	
 	jal le_inteiro
-	move $t2, $t0
+	move $t2, $t0 #$t2 = EXPOENTE
 	
 	#MODULO
 	li $v0, 4
@@ -89,10 +87,12 @@ MAIN:
 	syscall
 	
 	jal le_inteiro
-	move $t3, $t0
-	syscall
+	move $t3, $t0 #$t3 = MODULO (possivel primo)
 	
 	jal eh_primo
 	
-	
+	beqz $s0, nao_primo
+		
 	addi $t4, $0, 0X0000CAFE
+	
+END:
