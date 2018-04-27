@@ -1,6 +1,5 @@
 .data
 	comando: .asciiz "Escreva as variaveis para base, expoente e modulo"
-  	numero: .asciiz "numero: "
   	base: .asciiz "base: "
   	expoente: .asciiz "expoente: "
   	modulo: .asciiz "modulo: "
@@ -41,15 +40,25 @@ eh_primo:
 		mfhi $t7 #armazena o resto
 		beqz $t7, IF #Se resto=0, entra no if
 		volta_do_if:
-			addi $t6, $t6, 1 # i++
-			ble $t6, $t3, FOR # Se i <= provavel primo, continua o for
+		addi $t6, $t6, 1 # i++
+		ble $t6, $t3, FOR # Se i <= provavel primo, continua o for
 	
 	add $s0, $0, $0 #Inicia a variavel de retorno como 0
 	beq  $t5, 2, IF2 # Se tiver 2 divisores entra no if2
 	volta_do_if2:
-		jr $ra #volta pra main
+	jr $ra #volta pra main
 	
 calc_exp:
+	add $s1, $0, $t1 # resultado = base
+	li $t6, 1 #variavel i do for começando com 1
+	
+	FOR2:
+		mul $s1, $s1, $t1
+		addi $t6, $t6, 1 #i++
+		blt $t6, $t2, FOR2 #Continua o for até i < expoente	 
+	
+	div $s1, $t3 #Divide o resultado pelo modulo
+	mfhi $s1 #armazena o resto na variavel de resultado
 	jr $ra
 
 imprime_erro:
@@ -100,6 +109,16 @@ imprime_saida:
 
 
 MAIN:
+
+	#Comando inicial
+	li $v0, 4
+	la $a0, comando
+	syscall #Imprime a label
+	
+	li $a0, 0xA
+        li $v0, 0xB 
+        syscall ##imprime a quebra de linha
+	
 	#BASE
 	li $v0, 4
 	la $a0, base
@@ -130,7 +149,5 @@ MAIN:
 	
 	jal calc_exp
 	jal imprime_saida
-		
-	addi $t4, $0, 0X0000CAFE
 	
 END:

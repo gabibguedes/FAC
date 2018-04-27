@@ -38,7 +38,7 @@ int main(){
   scanf("%d", &modulo);
 
   if (eh_primo(modulo)) {
-    resultado = calc_exp(base, expoente, modulo)
+    resultado = calc_exp(base, expoente, modulo);
     printf("Resultado: %d\n", resultado);
   }else{
     printf("Nao eh primo\n");
