@@ -1,69 +1,56 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
-double diff(double n,double mid)
-{
-    if (n > (mid*mid*mid))
-        return (n-(mid*mid*mid));
-    else
-        return ((mid*mid*mid) - n);
-}
-
-// Returns cube root of a no n
-double cubicRoot(double n)
-{
-    // Set start and end for binary search
-    double start = 0, end = n + 1, mid, error;
-
-    // Set precision
-    double e = 0.0000001;
-
-    while(1) {
-        mid = (start + end)/2;
-        error = diff(n, mid);
-
-        printf("\n\nLOOP\n");
-        printf("start: %lf\n", start);
-        printf("mid: %lf\n", mid);
-        printf("end: %lf\n", end);
-        printf("error: %lf\n\n", error);
-
-        // If error is less than e then mid is
-        // our answer so return mid
-        if (error <= e){
-          printf("entrou no if de retorno\n");
-          return mid;
-        }
-        // If mid*mid*mid is greater than n set
-        // end = mid
-        if ((mid*mid*mid) > n){
-          printf("entrou no if de setar o end\n");
-          end = mid;
-        }
-        // If mid*mid*mid is less than n set
-        // start = mid
-        else{
-          printf("entrou no if de setar o start\n");
-          start = mid;
-        }
-
-        printf("\nstart: %lf\n",start );
-        printf("mid: %lf\n",mid );
-        printf("end: %lf\n",end );
-
+double calculaErro(double valor_inicial,double valor_aproximado){
+    if (valor_inicial > (valor_aproximado*valor_aproximado*valor_aproximado)){
+        return (valor_inicial-(valor_aproximado*valor_aproximado*valor_aproximado));
+    }else{
+        return ((valor_aproximado*valor_aproximado*valor_aproximado) - valor_inicial);
     }
 }
 
-// Driver code
-int main()
-{
-    double n, gabarito;
-    printf("numero: ");
-    scanf("%lf", &n);
-    printf("\nCubic root of %lf is %lf\n",
-           n, cubicRoot(n));
+//A raiz cubica é calculada pelo método de busca binária
+double raizCubica(double n, double *erro){
+    double inicio=0, fim=n+1, meio; //OBS.: O valor final foi iniciado como n+1,
+    double precisao = 0.0001;       //pois para numeros menores que 1 a raiz cubica
+                                    //pode ser maior que o próprio numero.
 
-    gabarito = pow(n,1.0/3.0);
-    printf("GABARITO: %lf\n", gabarito);
+    //O programa fica em loop até encontrar um resultado dentro da precisão
+    //estabelecida
+    while(1) {
+        meio = (inicio + fim)/2;
+        *erro = calculaErro(n, meio);
+
+        //Se o erro for menor que a precisão, retornamos o valor encontrado, caso
+        //o contrario, a busca continua
+        if (*erro <= precisao){
+          return meio;
+        }
+
+        //Se a o cubo de meio é maior que n, estabelecemos meio como o novo fim
+        //do nosso conjunto
+        if ((meio*meio*meio) > n){
+          fim = meio;
+
+        //Se o cubo de meio é menor que n, estabelecemos meio como o novo inicio
+        //do conjunto de busca
+        }else{
+          inicio = meio;
+        }
+    }
+}
+
+int main(){
+    double numero, gabarito, resultado, *erro;
+    erro = (double*)(malloc(sizeof(double)));
+    printf("numero: ");
+    scanf("%lf", &numero);
+
+    resultado = raizCubica(numero, erro);
+    printf("\nA raiz cubica de %lf é %lf\n", numero, resultado);
+    printf("erro: %lf\n", *erro);
+    gabarito = pow(numero,1.0/3.0);
+    printf("\n(GABARITO: %lf)\n", gabarito);
     return 0;
 }
