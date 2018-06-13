@@ -1,5 +1,5 @@
 .data
-	precisao: .double 0.0001
+	precisao: .double 0.000000000001
 	dois: .double 2.0
 	zero: .double 0.0
 	um: .double 1.0
@@ -20,25 +20,25 @@ le_float:
 	la $a0, entrada # Numero:
 	syscall
 	
-	li $v0, 6 #Seleciona tipo de variavel a ser lido (FLOAT = 6)
+	li $v0, 7 #Seleciona tipo de variavel a ser lido (FLOAT = 6)
 	syscall
 	
 	jr $ra
 	
 calc_raiz:
-	lwc1 $f2, zero #inicio = 0
-	lwc1 $f6, um #fim = 1
+	l.d $f2, zero #inicio = 0
+	l.d $f6, um #fim = 1
 	add.d $f6, $f6, $f0 #fim = n +1
-	lwc1 $f10, precisao #precisao = 0.0001
+	l.d $f10, precisao #precisao = 0.0001
 	
 	WHILE:
-		lwc1 $f14, dois
+		l.d $f14, dois
 		add.d $f4, $f2, $f6 #meio = inicio + fim
 		div.d $f4, $f4, $f14
 		jal calc_erro
 		
 		c.le.d $f8, $f10
-		bc1f calculado
+		bc1t calculado
 		
 		mul.d $f16, $f4, $f4 #$meio²
 		mul.d $f16, $f16, $f4 #$meio³
@@ -47,12 +47,12 @@ calc_raiz:
 		bc1t IF_while
 		
 		ELSE_while:
-			lwc1 $f14, zero
+			l.d $f14, zero
 			add.d $f2, $f4, $f14 #inicio = meio + 0
 			j WHILE
 		
 		IF_while:
-			lwc1 $f14, zero
+			l.d $f14, zero
 			add.d $f6, $f4, $f14 #fim = meio + 0
 			j WHILE
 		
@@ -60,19 +60,19 @@ calc_raiz:
 		
 
 calc_erro:
-	#$f12 = raiz cubica de 'meio'
-	mul.d $f12, $f4, $f4 #$f4²
-	mul.d $f12, $f12, $f4 #$f4³
+	#$f20 = raiz cubica de 'meio'
+	mul.d $f20, $f4, $f4 #$f4²
+	mul.d $f20, $f20, $f4 #$f4³
 	
-	c.lt.d $f12, $f0 #se meio³ < n entra no if
-	bc1f IF_erro
+	c.lt.d $f20, $f0 #se meio³ < n entra no if
+	bc1t IF_erro
 	
 	ELSE_erro:
-		sub.d $f8, $f12, $f0 ## ELSE: erro = meio³ - n
+		sub.d $f8, $f20, $f0 ## ELSE: erro = meio³ - n
 		jr $ra ##volta
 	
 	IF_erro:
-		sub.d  $f8, $f0, $f12 # erro = n- meio³
+		sub.d  $f8, $f0, $f20 # erro = n- meio³
 		jr $ra
 
 imprime_saida:
@@ -80,17 +80,19 @@ imprime_saida:
 	la $a0, saida1 # A raiz cubica é
 	syscall
 	
-	li $v0, 2
-	mov.d $f20, $f4
+	li $v0, 3
+	mov.d $f12, $f4
 	syscall # Imprime a raiz
 	
 	li $v0, 4
 	la $a0, saida2 # O erro é menor que
 	syscall
 	
-	li $v0, 2
-	mov.d $f20, $f8
+	li $v0, 3
+	mov.d $f12, $f8
 	syscall # Imprime o erro
+	
+	j FIM
 	
 MAIN:
 	jal le_float
@@ -98,5 +100,6 @@ MAIN:
 	
 	calculado:
 		jal imprime_saida
-
+		
+	FIM:
 	
